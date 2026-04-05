@@ -1,0 +1,95 @@
+// src/components/ProjectView.jsx
+// Main content area: shows steps + tasks for the selected project
+
+import { useState } from 'react'
+import { StepCard } from './StepCard'
+
+export function ProjectView({ project, steps, tasks, onAddStep, onDeleteStep, onAddTask, onToggleTask, onDeleteTask }) {
+  const [stepInput, setStepInput] = useState('')
+  const [addingStep, setAddingStep] = useState(false)
+
+  if (!project) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-3">📋</div>
+          <p className="text-stone-400 text-sm">Select or create a project to get started.</p>
+        </div>
+      </div>
+    )
+  }
+
+  const handleAddStep = () => {
+    if (!stepInput.trim()) return
+    onAddStep(stepInput)
+    setStepInput('')
+    setAddingStep(false)
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleAddStep()
+    if (e.key === 'Escape') {
+      setAddingStep(false)
+      setStepInput('')
+    }
+  }
+
+  return (
+    <div className="hidden md:flex-1  flex-1 overflow-y-auto scrollbar-thin">
+      <div className="max-w-2xl mx-auto px-8 py-10">
+        {/* Project title */}
+        <h1 className="text-2xl font-semibold text-stone-800 mb-1">{project.name}</h1>
+        <p className="text-xs font-mono text-stone-400 mb-8">
+          {steps.length} step{steps.length !== 1 ? 's' : ''}
+        </p>
+
+        {/* Steps */}
+        <div className="space-y-4">
+          {steps.map((step) => (
+            <StepCard
+              key={step.id}
+              step={step}
+              tasks={tasks.filter((t) => t.stepId === step.id)}
+              onAddTask={onAddTask}
+              onToggleTask={onToggleTask}
+              onDeleteTask={onDeleteTask}
+              onDeleteStep={onDeleteStep}
+            />
+          ))}
+        </div>
+
+        {/* Add step */}
+        <div className="mt-6">
+          {addingStep ? (
+            <div className="flex items-center gap-2">
+              <input
+                autoFocus
+                className="flex-1 text-sm px-4 py-2.5 rounded-xl border border-stone-200 focus:outline-none focus:border-stone-400 bg-white shadow-sm placeholder:text-stone-300"
+                placeholder="Step title…"
+                value={stepInput}
+                onChange={(e) => setStepInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onBlur={() => {
+                  if (!stepInput.trim()) setAddingStep(false)
+                }}
+              />
+              <button
+                onClick={handleAddStep}
+                className="text-sm px-4 py-2.5 bg-stone-800 text-white rounded-xl hover:bg-stone-700 transition-colors shadow-sm"
+              >
+                Add step
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setAddingStep(true)}
+              className="text-sm text-stone-400 hover:text-stone-700 transition-colors border border-dashed border-stone-200 hover:border-stone-300 rounded-xl px-4 py-3 w-full text-left flex items-center gap-2"
+            >
+              <span className="text-base leading-none">+</span> Add a step
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
