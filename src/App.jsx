@@ -9,22 +9,22 @@ import { Sidebar } from './components/Sidebar'
 import { ProjectView } from './components/ProjectView'
 
 export default function App() {
-  // Persist selected project across reloads
-  const [selectedProjectId, setSelectedProjectId] = useState(() => {
-    return localStorage.getItem('selectedProjectId') || null
-  })
+  const [selectedProjectId, setSelectedProjectId] = useState(() =>
+    localStorage.getItem('selectedProjectId') || null
+  )
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   const { projects, createProject, deleteProject } = useProjects()
   const { steps, addStep, deleteStep } = useSteps(selectedProjectId)
   const { tasks, addTask, toggleTask, deleteTask } = useTasks(steps.map((s) => s.id))
 
-  // Derive selected project object
   const selectedProject = projects.find((p) => p.id === selectedProjectId) || null
 
-  // If the selected project gets deleted, clear selection
+  // Clear selection if project was deleted
   useEffect(() => {
     if (selectedProjectId && !projects.find((p) => p.id === selectedProjectId)) {
       setSelectedProjectId(null)
+      localStorage.removeItem('selectedProjectId')
     }
   }, [projects, selectedProjectId])
 
@@ -42,13 +42,15 @@ export default function App() {
   }
 
   return (
-    <div className="md:flex h-full w-full">
+    <div className="flex h-full overflow-hidden">
       <Sidebar
         projects={projects}
         selectedId={selectedProjectId}
         onSelect={handleSelect}
         onCreate={createProject}
         onDelete={handleDeleteProject}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
       />
       <ProjectView
         project={selectedProject}
@@ -59,6 +61,7 @@ export default function App() {
         onAddTask={addTask}
         onToggleTask={toggleTask}
         onDeleteTask={deleteTask}
+        onMenuOpen={() => setMobileSidebarOpen(true)}
       />
     </div>
   )
