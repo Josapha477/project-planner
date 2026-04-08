@@ -2,6 +2,8 @@
 
 A local-first project planning app. No backend, no auth — everything lives in your browser via IndexedDB.
 
+Demo : [https://planner-tasks.vercel.app/](https://planner-tasks.vercel.app/).
+
 ## Stack
 
 - **React** + **Vite**
